@@ -1,0 +1,67 @@
+type: "SNIPPET_NOTE"
+folder: "f61e3fa6a108ac22c52b"
+title: "pixeles"
+description: "pixeles"
+snippets: [
+  {
+    name: ""
+    mode: "PHP"
+    content: '''
+      <?php
+      include_once '../pixel/constsss.php';
+      include_once '../jwt/JWT.php';
+      use \\Firebase\\JWT\\JWT;
+      
+        function createpixel($name){
+          $im = imagecreatetruecolor(1, 1);
+          //$rojo = imagecolorallocate($im, 255, 0, 0);
+          $blanco = imagecolorallocate($im, 255, 255, 255 );
+      
+          // Hacer el fondo transparente
+          imagecolortransparent($im, $blanco);
+      
+          // Dibujar un rectángulo rojo
+          imagefilledrectangle($im, 1, 1, 1, 1, $blanco);
+      
+          // Guardar la imagen
+          imagepng($im, '../pixeles/'.$name.'.png');
+          imagedestroy($im);
+        }
+        //$a = encriptarcw(8050247);
+       //echo $a;
+       // echo desencript($a);
+      function encriptarcw($cw){
+        //  $key = "example_key";
+      
+          $token = array(
+              "cw" => $cw,
+          );
+      
+          $jwt = JWT::encode($token, jahje_secret);
+      
+      return $jwt;
+      
+      }
+      
+      function desencript($cw){
+      
+        //$key = "example_key";
+        $decoded = JWT::decode($cw, jahje_secret, array('HS256'));
+      
+        $decoded_array = (array) $decoded;
+      
+        return $decoded_array['cw'];
+      }
+      
+      
+      
+      
+       ?>
+      
+    '''
+  }
+]
+tags: []
+isStarred: false
+createdAt: "2017-04-17T13:24:07.959Z"
+updatedAt: "2017-04-17T13:24:21.392Z"

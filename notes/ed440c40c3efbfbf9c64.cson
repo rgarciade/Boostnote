@@ -1,0 +1,92 @@
+type: "SNIPPET_NOTE"
+folder: "18adedc07865c59f879c"
+title: "functions/imegn.php"
+description: "functions/imegn.php"
+snippets: [
+  {
+    name: ""
+    mode: "PHP"
+    content: '''
+      <?php
+      
+      include "../database/sesion.php";
+      include "../database/constantes.php";
+      $idHotel=$_SESSION['codigoweb'];
+      $archivo2="";
+      $directory = "../imagenes_campana/".$idHotel."/";
+      $dirint = dir($directory);
+      $arrayout = array();
+      $contador = 0;
+      $respuesta=array();
+      
+      
+      
+      
+      while (($archivo = $dirint->read()) !== false)
+      {
+             // $archivo;
+          if($archivo !=="." && $archivo !==".."  && $archivo !==".:"){
+      
+      
+          if (eregi("gif", $archivo) || eregi("jpg", $archivo) || eregi("png", $archivo)){
+                 //echo '<img src="'.$directory.$archivo.'"  WIDTH=90 HEIGHT=70>'."\\n";
+             $arrayout[$contador] = $directory."/".$archivo;
+             $respuesta[$contador]= $arrayout[$contador];
+             $contador++;
+      
+             $documento=fopen("archivo.txt","w");
+             fwrite($documento,"generando archivo");
+             fclose($documento);
+      
+         }else{
+      
+      
+           $directory2=$directory.$archivo;
+           $dirint2 = dir($directory2);
+      
+              //echo $directory2;
+      
+             while (($archivo2 = $dirint2->read()) !== false){
+               if($archivo2 !=="." && $archivo2 !==".." && $archivo !=="." && $archivo !==".." && $archivo !==".:"  && $archivo2 !==".:"){
+              //echo 'cosas'.$archivo;
+      
+              if (eregi("gif", $archivo2) || eregi("jpg", $archivo2) || eregi("png", $archivo2)){
+                 //echo '<img src="'.$directory2."/".$archivo2.'"  WIDTH=90 HEIGHT=70>'."\\n";
+                  $arrayout[$contador] = $directory2."/".$archivo2;
+                  $respuesta[$contador]= $arrayout[$contador];
+                  $contador++;
+      
+                   $documento=fopen("archivo.txt","w");
+                  fwrite($documento,"generando archivo");
+                  fclose($documento);
+      
+              }
+          }
+      }
+      }
+      
+      }
+      
+      }
+      
+      
+      foreach ($respuesta as $key => $value) {
+        $respuesta[$key] = str_replace ("../" , URLFOTOS , $respuesta[$key] );
+      }
+      echo  json_encode($respuesta);
+      
+      $dirint->close();
+      $dirint2->close();
+          //var_dump($arrayout);
+      
+      
+      
+      ?>
+      
+    '''
+  }
+]
+tags: []
+isStarred: false
+createdAt: "2017-04-17T13:32:45.553Z"
+updatedAt: "2017-04-17T13:33:10.945Z"

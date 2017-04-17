@@ -1,0 +1,143 @@
+type: "SNIPPET_NOTE"
+folder: "f61e3fa6a108ac22c52b"
+title: "inserciones multiples preparadas"
+description: '''
+  inserciones multiples preparadas
+  
+'''
+snippets: [
+  {
+    name: ""
+    mode: "PHP"
+    content: '''
+      <?php
+      include "../database/conexion.php";
+      include "../database/sesion.php";
+      
+      $conn           = conectar_hotel($_SESSION['codigoweb']);
+      $idhotel        = idhotel($_SESSION['codigoweb']);
+      
+      $a_param_type   = array();
+      $a_bind_params  = array();
+      
+      $sqlconjunto = "";
+      
+      //$sqlinicio  = "";
+      $sql = "";
+      $sqlinicio = "INSERT INTO listMails (idnews, email,statusmail,idhotel)VALUES (";
+      $sqlmedio = "),(" ;
+      $sqlfin         = ");";
+      /*fake*/
+      $id =1000;
+      $email = "trala@ralarala.com";
+      $status = "prueba";
+      $idhotel = 3394;
+      $id1 =10001;
+      $email1 = "trala@ralarala.comm";
+      $status1 = "prueba1";
+      $idhotel1 = 3394;
+      /*fin fake*/
+      
+      
+      
+      
+      
+      $a = 2 ;
+      
+      for ($i=0; $i < $a; $i++) {
+        if($i > 0 ){
+          $sqlinicio .=$sqlmedio;
+        }
+      
+        $sqlinicio .="?,";
+        array_push($a_bind_params,$id);
+        array_push($a_param_type,'i');
+      
+        $sqlinicio .="?,";
+        array_push($a_bind_params,$email);
+        array_push($a_param_type,'s');
+      
+        $sqlinicio .="?,";
+        array_push($a_bind_params,$status);
+        array_push($a_param_type,'s');
+        $sqlinicio .="?";
+        array_push($a_bind_params,$idhotel);
+        array_push($a_param_type,'i');
+      
+      
+      
+      }
+      $sqlinicio .=$sqlfin;
+      $sql = $sqlinicio;
+      
+      
+      
+      
+      
+      //$sql = $sqlinicio;
+      //$id,$arrayouput[$i]['email'],$status,$idhotel
+      
+      
+      /* Bind parameters. Types: s = string, i = integer, d = double,  b = blob*/
+      
+      $a_params = array();
+      $a_dates = '';
+      $param_type = '';
+      $n = count($a_param_type);
+      
+      for ($i=0; $i < $n ; $i++) {
+      $param_type .= $a_param_type[$i];
+      }
+      $a_params[] = & $param_type;
+      
+      for ($i=0; $i < $n; $i++) {
+      $a_params[] = & $a_bind_params[$i];
+      
+      }
+      
+      
+      $stmt = $conn->prepare($sql);
+      if($stmt === false) {
+      trigger_error('Wrong SQL: ' . $sql . ' Error: ' . $conn->errno . ' ' . $conn->error, E_USER_ERROR);
+      }
+      call_user_func_array(array($stmt, 'bind_param'), $a_params);
+      
+      $stmt->execute();
+      echo $stmt->affected_rows;
+      $stmt->close();
+      
+      //sacar resultados si fuera select
+      /*
+      function fetchAssocStatement($stmt)
+      {
+          if($stmt->num_rows>0)
+          {
+              $result = array();
+              $md = $stmt->result_metadata();
+              $params = array();
+              while($field = $md->fetch_field()) {
+                  $params[] = &$result[$field->name];
+              }
+              call_user_func_array(array($stmt, 'bind_result'), $params);
+              if($stmt->fetch())
+                  return $result;
+          }
+      
+          return null;
+      }
+      
+      
+      $stmt->store_result();
+      
+      while($assoc_array = fetchAssocStatement($stmt)){
+            array_push($arrayouput, $assoc_array);
+          }
+      */
+       ?>
+    '''
+  }
+]
+tags: []
+isStarred: false
+createdAt: "2017-04-17T13:17:20.185Z"
+updatedAt: "2017-04-17T13:22:27.143Z"

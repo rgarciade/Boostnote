@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "key": "95d4cb54a41978dbf900",
+      "color": "#6AA5E9",
+      "name": "Default"
+    },
+    {
+      "key": "f61e3fa6a108ac22c52b",
+      "color": "#30D5C8",
+      "name": "php"
+    },
+    {
+      "key": "18adedc07865c59f879c",
+      "color": "#30D5C8",
+      "name": "subida imagenes comprimir"
+    },
+    {
+      "key": "39fe5166c20938f9f12e",
+      "color": "#E10051",
+      "name": "utiles"
+    }
+  ],
+  "version": "1.0"
+}

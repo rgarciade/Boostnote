@@ -1,0 +1,365 @@
+type: "SNIPPET_NOTE"
+folder: "f61e3fa6a108ac22c52b"
+title: "function creare arrays"
+description: "function creare arrays"
+snippets: [
+  {
+    name: ""
+    mode: "PHP"
+    content: '''
+      <?php
+      
+      function take_arrays_todo(){
+      	/*TRATAMIENTO DE PARAMETROS*/
+      		list($conn,$rateid,$idhotel,$roomid,$idcanal,$from,$to) = func_get_args();
+      
+      		$args = func_get_args();
+      		//echo count($args)."<br>";
+      		$arraycomparadores = [];
+      
+      		foreach ($args as $index => $arg) {
+      
+      			($index > 6)?  $arraycomparadores[$index] =$arg : "";
+      
+      		}
+      	/* FIN TRATAMIENTO DE PARAMETROS*/
+      	/*DEFINICION VARIABLES Y ARRAYS*/
+      		$array_padre 		 	= array();
+      		$array_compare	 	= array();
+      		$array_output			= array();
+      
+      		$primera 					= true;
+      		$pfecha  					= true;
+      		$fecha_actual 		= "";
+      		$array_count 			= 0;
+      
+      
+      		$array_bucle = take_arrays_compare($rateid,$idhotel,$roomid,$idcanal,$from,$to,$conn,$arraycomparadores);
+      		$array_bucle_completo = $array_bucle;
+      
+      		for ($i=0; $i < count($array_bucle_completo); $i++) {
+      
+      						$array_count = count($array_bucle);//cuantas vueltas quedan
+      
+      						if ($primera) {
+      
+      				  			$primera = false;
+      
+      				  			$array_padre = array_values($array_bucle)[0];//sacar 1 elemento array
+      
+       							$fecha_anterior= $array_padre['fecha'];
+      
+      				  			array_shift($array_bucle);// quitar 1 elemento array
+      
+      				  		}else{
+      
+      				  			$array_compare = array_values($array_bucle)[0];//sacar 1 elemento array
+      
+      					  		 	$comparacion =comparar_arrays($array_padre["restrictions"],$array_compare["restrictions"]);
+      
+      					  		if (count($comparacion) != 0 ){
+      
+      					  				$resp = crear_array_to_xml($array_padre,$fecha_anterior);
+      
+      					  				array_push($array_output,$resp);
+      
+      					  				if (($i+1) != count($array_bucle_completo)) {
+      					  					$array_padre =$array_compare;
+      					  				}
+      					  		}
+      
+      				  		 	array_shift($array_bucle);// quitar 1 elemento array
+      
+      						$fecha_anterior= $array_compare["fecha"];
+      
+      
+      				  		}	//1º else
+      		} // for arraybucle
+      
+      
+      
+      
+      		/*ACTUALIZACION ULTIMO DIA O DIA UNICO*/
+      
+      			$diafinal = fecha_ultimo($array_bucle_completo,"fecha",2);
+      
+      			$diafinoutput = fecha_ultimo($array_output,"to",1);
+      
+      			//se ejecuta si la ultima fecha no esta en el array, ose que al no cambiar respecto a la penultima no lanza el compare como false y se ejecuta
+      
+      
+      		//	echo "<br>aa".$diafinal."bb".$diafinoutput;
+      			if ( $diafinal !== $diafinoutput ){
+      				$resp = crear_array_to_xml($array_padre,$diafinal);
+      
+      				array_push($array_output,$resp);
+      
+      			}
+      
+      
+      return $array_output;
+      
+      
+      }
+      function fecha_ultimo($array1,$dfecha,$d){
+          $dia ="";
+      	if ($dfecha == "to") {
+      
+      			$filastotales = count($array1)-$d;
+      			$cont =0;
+      
+      
+      			foreach ($array1 as $key => $value) {
+      				if ($filastotales == $cont){
+      
+      	                if(isset($array1[$key]["fijo"]["$dfecha"])){
+      	                               $dia = $array1[$key]["fijo"]["$dfecha"];
+      	                }
+      
+      				}
+      
+      				$cont++;
+      			}
+      			return $dia;
+      
+      	}else{
+      
+      			$filastotales = count($array1)-$d;
+      			$cont =0;
+      
+      
+      
+      			foreach ($array1 as $key => $value) {
+      				if ($filastotales == $cont){
+      
+      					$dia = $array1[$key]["$dfecha"];
+      				}
+      
+      				$cont++;
+      			}
+      			return $dia;
+      
+      	}
+      }
+      function incluir_array($arr1,$arr2){
+      	$countinserc = 0;
+      
+      		array_push($arr1,$arr2);
+      
+      		$countinserc++;
+      
+      
+      	return $arr1;
+      }
+      function take_arrays_compare($rateid,$idhotel,$roomid,$idcanal,$from,$to,$conn,$arraycomparadores){
+      	$arrayoutput = array();
+      	/*RATEPLAN Y RATEIDAVIRATO*/
+      	$stmt=mysqli_prepare($conn,"SELECT room_id_canal,rate_id_avirato from cm_room_map, cm_rate_map where room_id_canal = id_room_canal and  id_room_avirato = ? and id_hotel_avirato = ? and id_canal= ? and rate_id_avirato =? ");
+      	     mysqli_stmt_bind_param($stmt,'iiii',$roomid,$idhotel,$idcanal,$rateid);
+      	     mysqli_stmt_execute($stmt);
+      	     mysqli_stmt_bind_result($stmt,$rplan,$rate_id_avirato);
+      	     mysqli_stmt_fetch($stmt);
+      	     mysqli_stmt_close($stmt);
+      
+      
+      	$query = "SELECT * FROM cm_disponibilidad,cm_room_map,cm_rate_map where cm_disponibilidad.idhotel = $idhotel
+      							and id_room_avirato = idTipoHabitacion
+      							and id_room_canal = room_id_canal
+      							and idTipoHabitacion = '$roomid'
+      							and id_canal = idcanal
+      							and id_room_canal = '$rplan'
+      							and rate_id_avirato = $rateid
+      							and (operador = $idcanal OR operador = 0)
+      							and DATE(fecha)>=DATE('$from') AND DATE(fecha)<=DATE('$to')
+      							order by fecha
+      							"or die("Error en la consulta SQL dispo");
+      		    $result = mysqli_query($conn, $query);
+      
+      		    $filas = mysqli_num_rows($result);
+      
+      			$arrayrestrictions = Take_array_restrictions($from,$to,$roomid,$idhotel,$idcanal,$conn,$rate_id_avirato,$arraycomparadores);
+      
+      			$arraydispo = Take_dispo($result);
+      
+      			$arrayoutput = juntar_arrays($arrayrestrictions,$arraydispo);
+      
+      	return $arrayoutput;
+      }
+      function Take_array_restrictions($from,$to,$roomid,$idhotel,$idcanal ,$conn,$rate_id_avirato,$arraycomparadores){
+      
+      	$arr_prices_and_Restriction = array();
+      
+      	$result1 = mysqli_query ($conn,"SELECT * FROM cm_rate_temp,cm_disponibilidad where (cm_disponibilidad.operador=$idcanal OR cm_disponibilidad.operador=0) and
+      		 cm_disponibilidad.idhotel = $idhotel AND
+      		 DATE(cm_disponibilidad.fecha) >= DATE('$from') AND
+      		 DATE(cm_disponibilidad.fecha) <= DATE('$to') and
+      		 roomtypeid = $roomid and rateid =$rate_id_avirato and
+      	      cm_rate_temp.fecha = cm_disponibilidad.fecha
+      	      and roomtypeid = idTipoHabitacion
+      				order by cm_disponibilidad.fecha")or die("Error en la consulta restricciones");
+      
+      
+      
+      			/*agrega al array de comparacion los resultados relacionados con los parametros extra
+      				que le pasamos a la funcion principal y actualmente guardados en $arraycomparadores*/
+      		while( $row = mysqli_fetch_array ( $result1 )) {
+      			$arrayrestrictions = array();
+      
+      			foreach ($arraycomparadores as $key => $value) {
+      				$arr_restrictions[$value]=$row [$value];
+      			}
+      
+      			$arr_prices_and_Restriction[$row [ "fecha" ]]["fecha"] = $row [ "fecha" ];
+      			$arr_prices_and_Restriction[$row [ "fecha" ]]["price"] = $row [ "price" ];
+      			$arr_prices_and_Restriction[$row [ "fecha" ]]["roomid"] = $row [ "roomtypeid" ];
+      			$arr_prices_and_Restriction[$row [ "fecha" ]]["restrictions"] = $arr_restrictions ;
+      
+      			unset($arr_restrictions);
+      		}
+      
+      	return $arr_prices_and_Restriction;
+      }
+      function Take_dispo($result){
+      	$arr_dp_padre = array();
+      
+      
+      
+      	    while( $row = mysqli_fetch_array ( $result )) {
+      			$arr_dp_hijo = array();
+      			$arr_dp_padre[$row [ "fecha" ]] = $row [ "fecha" ];
+      
+      			    //	$arr_dp_hijo ["dispo"]	  = $row [ "disponibles" ];
+      			    	$arr_dp_hijo ["idtipo"]	  = $row ["idTipoHabitacion"];
+      			    	$arr_dp_hijo ["roomname"] = $row ["id_room_canal"];
+      			    	$arr_dp_hijo ["ratename"] = $row ["rate_id_canal"];
+      
+      			$arr_dp_padre[$row [ "fecha" ]]	= $arr_dp_hijo;
+      			unset($arr_dp_hijo);
+      		}
+      
+      	return $arr_dp_padre;
+      }
+      function juntar_arrays($arrayrestrictions,$arraydispo){
+      	foreach ($arrayrestrictions as $key => $value) {
+      
+      		$arrayrestrictions[$key]["datos"] =$arraydispo[$key];
+      
+      	}
+      	return $arrayrestrictions;
+      }
+      function comparar_arrays($arraypadre,$arraycomparar){
+      
+      	$arrayoutput = array();
+      
+      	foreach ($arraypadre as $key => $value) {
+      
+      		if($arraycomparar[$key] !== $value){
+      			$arrayoutput[$key] = $arraycomparar[$key];
+      		};
+      	}
+      
+      
+      	return $arrayoutput;
+      }
+      function crear_array_to_xml($array_padre,$fecha_anterior){
+      	$array_output = array();
+      
+      
+      $array_output = crear_array($array_padre,$fecha_anterior);
+      
+      
+      
+      	return $array_output;
+      }
+      
+      function crear_array($array_padre,$fecha_anterior){
+      
+      
+      	$arr_return = array();
+      
+      
+      
+      
+      	$arr_return["fijo"]["from"] 		= $array_padre["fecha"];
+      	$arr_return["fijo"]["to"] 	= $fecha_anterior;
+      	$arr_return["fijo"]["room"] 	= $array_padre['datos']['roomname'];
+      	$arr_return["fijo"]["rateplan"] = $array_padre['datos']['ratename'];
+      
+      
+      foreach ($array_padre["restrictions"] as $key => $value) {
+      
+      	if ($key == "Arrival" ||$key == "Departure" ||$key == "closed" ) {
+      		$arr_return["variable"][$key] = isopen($array_padre["restrictions"][$key]);
+      	}else{
+      		$arr_return["variable"][$key] 	= $array_padre["restrictions"][$key];
+      	}
+      }
+      
+      
+      	return $arr_return;
+      }
+      
+      
+      
+      function isopen($dat){
+      	if ($dat == 1){
+      
+      				return "Close";
+      
+      		}else{
+      				return "Open";
+      
+      		}
+      }
+      
+      function crear_array_to_xml_prices($array_padre,$fecha_anterior){
+      	$arr_return = array();
+      
+      	$arr_return["fechaini"] = $array_padre["fecha"];
+      
+      	$arr_return["fechafin"] = $fecha_anterior;
+      
+      	$arr_return["typeroom"] = $array_padre['datos']['roomname'];
+      
+      	$arr_return["price"] = $array_padre["price"];
+      
+      	$arr_return["rateplan"] = $array_padre['datos']['ratename'];
+      
+      
+      	return $arr_return;
+      
+      
+      }
+      
+      function transform_fechas($fecha){
+      	$fecha = date("Y-m-d 00:00:00", strtotime($fecha));
+      	return $fecha;
+      }
+      function transform_sinhora($fecha){
+      	$fecha = date("Y-m-d", strtotime($fecha));
+      	return $fecha;
+      }
+      
+      function nulls_in_array($array){
+      		$isnull = false;
+      		echo "sss<br>";
+      		for ($i=0; $i < count($array); $i++) {
+      			foreach ($array[$i] as $key => $value) {
+      				echo $array[$i][$key]."<br>";
+      				if ($array[$i][$key] == null) {
+      					$isnull = true;
+      				}
+      			}
+      		}
+      		echo "deddedee =".$isnull."<br>";
+      		return $isnull;
+      }
+       ?>
+      
+    '''
+  }
+]
+tags: []
+isStarred: false
+createdAt: "2017-04-17T13:24:56.633Z"
+updatedAt: "2017-04-17T13:25:15.275Z"

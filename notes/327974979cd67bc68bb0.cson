@@ -1,0 +1,15 @@
+type: "MARKDOWN_NOTE"
+folder: "39fe5166c20938f9f12e"
+title: "notificaciones"
+content: '''
+  # notificaciones
+  http://alertifyjs.com/notifier.html
+  # alertas
+  http://t4t5.github.io/sweetalert/
+  # input complejo
+  http://summernote.org/
+'''
+tags: []
+isStarred: false
+createdAt: "2017-04-17T13:34:22.626Z"
+updatedAt: "2017-04-17T13:39:45.471Z"
