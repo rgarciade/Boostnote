@@ -1,0 +1,15 @@
+type: "SNIPPET_NOTE"
+folder: "39fe5166c20938f9f12e"
+title: "aaa"
+description: "aaa"
+snippets: [
+  {
+    name: ""
+    mode: "text"
+    content: "aaaa"
+  }
+]
+tags: []
+isStarred: false
+createdAt: "2017-04-17T13:59:49.321Z"
+updatedAt: "2017-04-17T13:59:53.315Z"
